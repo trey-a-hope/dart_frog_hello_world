@@ -7,6 +7,7 @@ import 'package:dart_frog/dart_frog.dart';
 
 
 import '../routes/index.dart' as index;
+import '../routes/echo/[message].dart' as echo_$message;
 import '../routes/counter/counter.dart' as counter_counter;
 
 import '../routes/counter/_middleware.dart' as counter_middleware;
@@ -28,6 +29,7 @@ Handler buildRootHandler() {
   final pipeline = const Pipeline();
   final router = Router()
     ..mount('/counter', (context) => buildCounterHandler()(context))
+    ..mount('/echo', (context) => buildEchoHandler()(context))
     ..mount('/', (context) => buildHandler()(context));
   return pipeline.addHandler(router);
 }
@@ -36,6 +38,13 @@ Handler buildCounterHandler() {
   final pipeline = const Pipeline().addMiddleware(counter_middleware.middleware);
   final router = Router()
     ..all('/counter', (context) => counter_counter.onRequest(context,));
+  return pipeline.addHandler(router);
+}
+
+Handler buildEchoHandler() {
+  final pipeline = const Pipeline();
+  final router = Router()
+    ..all('/<message>', (context,message,) => echo_$message.onRequest(context,message,));
   return pipeline.addHandler(router);
 }
 
