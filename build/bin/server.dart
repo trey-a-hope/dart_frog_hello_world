@@ -7,7 +7,9 @@ import 'package:dart_frog/dart_frog.dart';
 
 
 import '../routes/index.dart' as index;
+import '../routes/counter/counter.dart' as counter_counter;
 
+import '../routes/counter/_middleware.dart' as counter_middleware;
 
 void main() async {
   final address = InternetAddress.anyIPv6;
@@ -25,7 +27,15 @@ Future<HttpServer> createServer(InternetAddress address, int port) async {
 Handler buildRootHandler() {
   final pipeline = const Pipeline();
   final router = Router()
+    ..mount('/counter', (context) => buildCounterHandler()(context))
     ..mount('/', (context) => buildHandler()(context));
+  return pipeline.addHandler(router);
+}
+
+Handler buildCounterHandler() {
+  final pipeline = const Pipeline().addMiddleware(counter_middleware.middleware);
+  final router = Router()
+    ..all('/counter', (context) => counter_counter.onRequest(context,));
   return pipeline.addHandler(router);
 }
 
